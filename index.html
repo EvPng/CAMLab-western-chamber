@@ -8,7 +8,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com">
         <link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&display=swap" rel="stylesheet">
 		<!-- <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400&display=swap" rel="stylesheet"> -->
-		<base href="{{site.baseurl}}" />
+		<base href="{{ site.baseurl }}" />
 	</head>
 	<body>
         <div id="mySidebar" class="sidebar">
@@ -47,13 +47,13 @@
 
 		<script type="module">
 
-			import * as THREE from '/build/three.module.js';
+			import * as THREE from '{{ site.baseurl }}/build/three.module.js';
 
-			// import Stats from './jsm/libs/stats.module.js';
+			// import Stats from '{{ site.baseurl }}/jsm/libs/stats.module.js';
 
-            import { PLYLoader } from '/jsm/loaders/PLYLoader.js';
+            import { PLYLoader } from '{{ site.baseurl }}/jsm/loaders/PLYLoader.js';
             
-            import { OrbitControls } from '/jsm/controls/OrbitControls.js';
+            import { OrbitControls } from '{{ site.baseurl }}/jsm/controls/OrbitControls.js';
 
 			let container, stats;
 
