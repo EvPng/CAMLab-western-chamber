@@ -88,11 +88,11 @@
 				plane.receiveShadow = true;
 
                 const textureLoader = new THREE.TextureLoader();
-                const texture = textureLoader.load( '/models/texture.png' );
+                const texture = textureLoader.load( '/CAMLab-western-chamber/models/texture.png' );
 				// PLY file
 
 				const loader = new PLYLoader();
-				loader.load( '/models/mesh.ply', function ( geometry ) { //ascii format
+				loader.load( '/CAMLab-western-chamber/models/mesh.ply', function ( geometry ) { //ascii format
 
 					geometry.computeVertexNormals();
 
