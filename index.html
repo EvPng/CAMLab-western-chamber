@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Western Chamber Vase</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link type="text/css" rel="stylesheet" href="main.css">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@300;400;700&display=swap" rel="stylesheet">
+        <!-- <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400&display=swap" rel="stylesheet"> -->
+	</head>
+	<body>
+        <div id="mySidebar" class="sidebar">
+            <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+            <h3>Controls</h3>
+            <p>Zoom: Mouse scroll</p>
+            <p>Rotate vase: Click and drage</p>
+            <p>Pan: Hold shift and drag</p>
+            <a href="#">About</a>
+            <p>Enabled by <a class="threejs" href="https://github.com/mrdoob/three.js/blob/master/examples/webgl_loader_ply.html" target="_blank" rel="noopener">three.js</a></p>
+        </div>
+          
+        <div id="main">
+            <button class="openbtn" onclick="openNav()">☰<span>Harvard CAMLab</span></button>  
+            <h2>Western Chamber Vase</h2>
+            <!-- <p>Harvard CAMLab</p> -->
+        </div>
+
+        <!-- <div id="info">
+            <a href="https://camlab.fas.harvard.edu/" target="_blank" rel="noopener">Harvard CAMLab</a>  | 
+            Enabled by <a href="https://github.com/mrdoob/three.js/blob/master/examples/webgl_loader_ply.html" target="_blank" rel="noopener">three.js</a>.<br/>
+        </div> -->
+
+        
+        <script>
+            function openNav() {
+                document.getElementById("mySidebar").style.width = "250px";
+                document.getElementById("main").style.marginLeft = "250px";
+            }
+            
+            function closeNav() {
+                document.getElementById("mySidebar").style.width = "0";
+                document.getElementById("main").style.marginLeft= "0";
+            }
+        </script>
+
+		<script type="module">
+
+			import * as THREE from './build/three.module.js';
+
+			// import Stats from './jsm/libs/stats.module.js';
+
+            import { PLYLoader } from './jsm/loaders/PLYLoader.js';
+            
+            import { OrbitControls } from './jsm/controls/OrbitControls.js';
+
+			let container, stats;
+
+			let camera, cameraTarget, controls, scene, renderer;
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 1, 500 );
+				camera.position.set( 0, 0, 30 );
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0x2a2a2a ); //0x72645b
+                scene.fog = new THREE.Fog( 0x2a2a2a, 20, 100 );
+                renderer = new THREE.WebGLRenderer();
+
+				// Ground
+
+				const plane = new THREE.Mesh(
+					new THREE.PlaneBufferGeometry( 400, 400 ),
+					new THREE.MeshPhongMaterial( { color: 0x1f1f1f, specular: 0x0F0E0C } )  //0x1f1f1f, 0x1E1A18
+				);
+				plane.rotation.x = - Math.PI / 2;
+				plane.position.y = - 6;
+				scene.add( plane );
+
+				plane.receiveShadow = true;
+
+                const textureLoader = new THREE.TextureLoader();
+                const texture = textureLoader.load( './models/texture.png' );
+				// PLY file
+
+				const loader = new PLYLoader();
+				loader.load( './models/mesh.ply', function ( geometry ) { //ascii format
+
+					geometry.computeVertexNormals();
+
+                    const material = new THREE.MeshBasicMaterial( { map: texture } )
+					const mesh = new THREE.Mesh( geometry, material );
+
+                    // mesh.rotation.z = Math.PI / 2;
+                    mesh.rotation.z = 1.582;
+                    mesh.position.y = - 3.5;
+                    mesh.position.z = 6.385;
+					mesh.scale.multiplyScalar( 0.5 );
+
+					mesh.castShadow = true;
+					mesh.receiveShadow = true;
+
+					scene.add( mesh );
+
+				} );
+
+
+				// Lights
+
+				scene.add( new THREE.HemisphereLight( 0x0E0E1B, 0x111122, 1 ) ); //0x111122
+
+				addShadowedLight( - 0.15, 1, 0.25, 0x6A6A6E, 0.75 );
+				addShadowedLight( 0.25, 1, 0.25, 0x6A6A6E, 0.75 );
+
+				// renderer
+
+				// renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.outputEncoding = THREE.sRGBEncoding;
+
+                renderer.shadowMap.enabled = true;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+
+                container.appendChild( renderer.domElement );
+                
+                // controls
+
+				controls = new OrbitControls( camera, renderer.domElement );
+
+                //controls.addEventListener( 'change', render ); // call this only in static scenes (i.e., if there is no animation loop)
+
+                controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+                controls.dampingFactor = 0.05;
+
+                // controls.screenSpacePanning = false;
+                controls.autoRotate = true
+
+                controls.minDistance = 5;
+                controls.maxDistance = 50;
+
+                // controls.maxPolarAngle = Math.PI / 2;
+
+				// stats
+
+				// stats = new Stats();
+				// container.appendChild( stats.dom );
+
+				// resize
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function addShadowedLight( x, y, z, color, intensity ) {
+
+				const directionalLight = new THREE.DirectionalLight( color, intensity );
+				directionalLight.position.set( x, y, z );
+				scene.add( directionalLight );
+
+				directionalLight.castShadow = true;
+
+				const d = 550;
+				directionalLight.shadow.camera.left = - d;
+				directionalLight.shadow.camera.right = d;
+				directionalLight.shadow.camera.top = d;
+				directionalLight.shadow.camera.bottom = - d;
+
+				directionalLight.shadow.camera.near = 1;
+				directionalLight.shadow.camera.far = 500;
+
+				directionalLight.shadow.mapSize.width = 1024;
+				directionalLight.shadow.mapSize.height = 1024;
+
+				directionalLight.shadow.bias = - 0.001;
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+
+                requestAnimationFrame( animate );
+                
+                controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+
+				render();
+				// stats.update();
+
+			}
+
+			function render() {
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
