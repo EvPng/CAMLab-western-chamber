@@ -1,5 +1,2 @@
 theme: jekyll-theme-architect
 baseurl: '/CAMLab-western-chamber'
-relative_links:
-  enabled:     false
-  collections: false
